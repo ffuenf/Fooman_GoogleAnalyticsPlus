@@ -1,3 +1,7 @@
+## Fork of [Fooman_GoogleAnalyticsPlus](http://www.magentocommerce.com/magento-connect/fooman-googleanalyticsplus.html)
+
+Meant to extend the functionality of the GoogleAnalyticsPlus module.
+
 ### [_trackPageLoadTime](https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiBasicConfiguration#_gat.GA_Tracker_._trackPageLoadTime) replaced by [_setSiteSpeedSampleRate](https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiBasicConfiguration#_gat.GA_Tracker_._setSiteSpeedSampleRate)
 
-Since the old code is deprecated and the new adds more functionality, this one is used.
+The _trackPageLoadTime is deprecated, now using the more functional _setSiteSpeedSampleRate.
