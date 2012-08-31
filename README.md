@@ -1,0 +1,3 @@
+### [_trackPageLoadTime](https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiBasicConfiguration#_gat.GA_Tracker_._trackPageLoadTime) replaced by [_setSiteSpeedSampleRate](https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiBasicConfiguration#_gat.GA_Tracker_._setSiteSpeedSampleRate)
+
+Since the old code is deprecated and the new adds more functionality, this one is used.

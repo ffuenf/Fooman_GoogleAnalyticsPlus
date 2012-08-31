@@ -285,9 +285,17 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
         if ($domainName = Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('domainname')) {
             $html .=' ,["_setDomainName","' . $domainName . '"]';
         }
+
+        //_anonymizeIp
         if($anonymise = Mage::getStoreConfigFlag('google/analyticsplus/anonymise')) {
             $html .=', ["_gat._anonymizeIp"]';
         }
+
+        //_setSiteSpeedSampleRate
+        if (Mage::getStoreConfigFlag('google/analyticsplus/sitespeedsamplerate')) {
+            $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate').']';
+        }
+
         if(Mage::getStoreConfigFlag('google/analyticsplus/firstouch')) {
             $html .=');
             asyncDistilledFirstTouch(_gaq);
@@ -296,9 +304,6 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
             $html .=', ["_trackPageview","' . $optPageURL . '"]';
         }
 
-        if(Mage::getStoreConfigFlag('google/analyticsplus/trackpageloadtime')) {
-            $html .=', ["_trackPageLoadTime"]';
-        }        
         $html .=');';
         
         //track to alternative profile (optional)
@@ -312,12 +317,16 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
                 //anonymise requires the synchronous tracker object so likely not needed on this one
                 //$html .=', ["t2._anonymizeIp"]';
             }
+
+            //_setSiteSpeedSampleRate
+            if (Mage::getStoreConfigFlag('google/analyticsplus/sitespeedsamplerate')) {
+                $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate').']);
+                _gaq.push(';
+            }
+
             $html .=', ["t2._trackPageview","' . $optPageURL . '"]';
-            
-            if(Mage::getStoreConfigFlag('google/analyticsplus/trackpageloadtime')) {
-                $html .=', ["_trackPageLoadTime"]';
-            }        
-            $html .=');';            
+
+            $html .=');';
         }
 
         return $html;
