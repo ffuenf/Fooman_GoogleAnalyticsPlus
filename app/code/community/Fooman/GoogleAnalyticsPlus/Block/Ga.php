@@ -98,7 +98,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
 '
   . $this->_getPageTrackingCode($accountId,$accountId2)
   . ($new?$this->_getOrdersTrackingCode($accountId2):'')
-  . $this->_getAjaxPageTracking($accountId2) . '
+  . '
 //]]>
 </script>
 '
@@ -285,17 +285,9 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
         if ($domainName = Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('domainname')) {
             $html .=' ,["_setDomainName","' . $domainName . '"]';
         }
-
-        //_anonymizeIp
         if($anonymise = Mage::getStoreConfigFlag('google/analyticsplus/anonymise')) {
             $html .=', ["_gat._anonymizeIp"]';
         }
-
-        //_setSiteSpeedSampleRate
-        if (Mage::getStoreConfigFlag('google/analyticsplus/sitespeedsamplerate')) {
-            $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate').']';
-        }
-
         if(Mage::getStoreConfigFlag('google/analyticsplus/firstouch')) {
             $html .=');
             asyncDistilledFirstTouch(_gaq);
@@ -304,6 +296,9 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
             $html .=', ["_trackPageview","' . $optPageURL . '"]';
         }
 
+        if(Mage::getStoreConfigFlag('google/analyticsplus/trackpageloadtime')) {
+            $html .=', ["_trackPageLoadTime"]';
+        }        
         $html .=');';
         
         //track to alternative profile (optional)
@@ -317,49 +312,15 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
                 //anonymise requires the synchronous tracker object so likely not needed on this one
                 //$html .=', ["t2._anonymizeIp"]';
             }
-
-            //_setSiteSpeedSampleRate
-            if (Mage::getStoreConfigFlag('google/analyticsplus/sitespeedsamplerate')) {
-                $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate').']);
-                _gaq.push(';
-            }
-
             $html .=', ["t2._trackPageview","' . $optPageURL . '"]';
-
-            $html .=');';
+            
+            if(Mage::getStoreConfigFlag('google/analyticsplus/trackpageloadtime')) {
+                $html .=', ["_trackPageLoadTime"]';
+            }        
+            $html .=');';            
         }
 
         return $html;
-    }
-
-    /**
-     * return code to track AJAX requests
-     *
-     * @param bool|int $accountId2
-     *
-     * @return string
-     */
-    private function _getAjaxPageTracking($accountId2 = false) {
-    return '
-
-            if(Ajax.Responders){
-                Ajax.Responders.register({
-                  onComplete: function(response){
-                    if(!response.url.include("progress")){
-                        if(response.url.include("saveOrder")){
-                            _gaq.push(["_trackPageview", "'.$this->getPageName().'"+ "/opc-review-placeOrderClicked"]);'
-                            .($accountId2?'
-                            _gaq.push(["t2._trackPageview", "'.$this->getPageName().'"+ "/opc-review-placeOrderClicked"]);':'').'
-                        }else if(accordion.currentSection){
-                            _gaq.push(["_trackPageview", "'.$this->getPageName().'/"+ accordion.currentSection]);'
-                            .($accountId2?'
-                            _gaq.push(["t2._trackPageview", "'.$this->getPageName().'/"+ accordion.currentSection]);':'').'
-                        }
-                    }
-                  }
-                });
-            }
-';
     }
 
 }
