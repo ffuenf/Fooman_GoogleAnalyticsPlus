@@ -79,7 +79,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
             $accountId = $this->getAccount();
         }
         $accountId2 = Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('accountnumber2');
-        
+
         $html = '
 <!-- BEGIN GOOGLE ANALYTICS CODE -->
 <script type="text/javascript">
@@ -87,9 +87,17 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
             (function() {
                 var ga = document.createElement(\'script\'); ga.type = \'text/javascript\'; ga.async = true;';
                 if ($secure == 'true') {
-                    $html .= 'ga.src = \'https://ssl.google-analytics.com/ga.js\';';
+                    if(Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('remarketing')){
+                        $html .= 'ga.src = \'https://stats.g.doubleclick.net/dc.js\';';
+                    } else {
+                        $html .= 'ga.src = \'https://ssl.google-analytics.com/ga.js\';';
+                    }
                 } else {
-                    $html .= 'ga.src = \'http://google-analytics.com/ga.js\';';
+                    if(Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('remarketing')){
+                        $html .= 'ga.src = \'https://stats.g.doubleclick.net/dc.js\';';
+                    } else {
+                        $html .= 'ga.src = \'http://google-analytics.com/ga.js\';';
+                    }
                 }
                 $html .= '
                 var s = document.getElementsByTagName(\'script\')[0]; s.parentNode.insertBefore(ga, s);
@@ -249,17 +257,13 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
 
     protected function _getCustomerVars ($accountId2 = false)
     {
-        //TODO: check if we hit the 5 custom var maximum when using with first touch tracking
-        //set customer variable for the current session c=1
-        //set returning customer variable onwards for this visitor rc=1
+        //set customer variable for the current visitor c=1
         return '
 <script type="text/javascript">
 //<![CDATA[
-    _gaq.push(["_setCustomVar", 5, "c", "1", 2]);
-    _gaq.push(["_setCustomVar", 5, "rc", "1", 1]);
+    _gaq.push(["_setCustomVar", 5, "c", "1", 1]);
     '.($accountId2?'
-    _gaq.push(["t2._setCustomVar", 5, "c", "1", 2]);
-    _gaq.push(["t2._setCustomVar", 5, "rc", "1", 1]);
+    _gaq.push(["t2._setCustomVar", 5, "c", "1", 1]);
 ':'').'
 //]]>
 </script>
@@ -285,17 +289,9 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
         if ($domainName = Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('domainname')) {
             $html .=' ,["_setDomainName","' . $domainName . '"]';
         }
-
-        //_anonymizeIp
         if($anonymise = Mage::getStoreConfigFlag('google/analyticsplus/anonymise')) {
             $html .=', ["_gat._anonymizeIp"]';
         }
-
-        //_setSiteSpeedSampleRate
-        if (Mage::getStoreConfigFlag('google/analyticsplus/sitespeedsamplerate')) {
-            $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate').']';
-        }
-
         if(Mage::getStoreConfigFlag('google/analyticsplus/firstouch')) {
             $html .=');
             asyncDistilledFirstTouch(_gaq);
@@ -304,6 +300,9 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
             $html .=', ["_trackPageview","' . $optPageURL . '"]';
         }
 
+        if(Mage::getStoreConfigFlag('google/analyticsplus/trackpageloadtime')) {
+            $html .=', ["_trackPageLoadTime"]';
+        }        
         $html .=');';
         
         //track to alternative profile (optional)
@@ -317,16 +316,12 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
                 //anonymise requires the synchronous tracker object so likely not needed on this one
                 //$html .=', ["t2._anonymizeIp"]';
             }
-
-            //_setSiteSpeedSampleRate
-            if (Mage::getStoreConfigFlag('google/analyticsplus/sitespeedsamplerate')) {
-                $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate').']);
-                _gaq.push(';
-            }
-
             $html .=', ["t2._trackPageview","' . $optPageURL . '"]';
-
-            $html .=');';
+            
+            if(Mage::getStoreConfigFlag('google/analyticsplus/trackpageloadtime')) {
+                $html .=', ["_trackPageLoadTime"]';
+            }        
+            $html .=');';            
         }
 
         return $html;
@@ -339,21 +334,24 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
      *
      * @return string
      */
-    private function _getAjaxPageTracking($accountId2 = false) {
-    return '
+    private function _getAjaxPageTracking($accountId2 = false)
+    {
+        $baseUrl = preg_replace('/\/\?.*/', '', $this->getPageName());
+        //$query = preg_replace('/.*\?/', '', $this->getPageName());
+        return '
 
             if(Ajax.Responders){
                 Ajax.Responders.register({
                   onComplete: function(response){
-                    if(!response.url.include("progress")){
+                    if(!response.url.include("progress") && !response.url.include("getAdditional")){
                         if(response.url.include("saveOrder")){
-                            _gaq.push(["_trackPageview", "'.$this->getPageName().'"+ "/opc-review-placeOrderClicked"]);'
+                            _gaq.push(["_trackPageview", "'.$baseUrl.'"+ "/opc-review-placeOrderClicked"]);'
                             .($accountId2?'
-                            _gaq.push(["t2._trackPageview", "'.$this->getPageName().'"+ "/opc-review-placeOrderClicked"]);':'').'
+                            _gaq.push(["t2._trackPageview", "'.$baseUrl.'"+ "/opc-review-placeOrderClicked"]);':'').'
                         }else if(accordion.currentSection){
-                            _gaq.push(["_trackPageview", "'.$this->getPageName().'/"+ accordion.currentSection]);'
+                            _gaq.push(["_trackPageview", "'.$baseUrl.'/"+ accordion.currentSection]);'
                             .($accountId2?'
-                            _gaq.push(["t2._trackPageview", "'.$this->getPageName().'/"+ accordion.currentSection]);':'').'
+                            _gaq.push(["t2._trackPageview", "'.$baseUrl.'/"+ accordion.currentSection]);':'').'
                         }
                     }
                   }
