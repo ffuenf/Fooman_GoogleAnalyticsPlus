@@ -297,7 +297,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
 
         //_setSiteSpeedSampleRate
         if (Mage::getStoreConfigFlag('google/analyticsplus/sitespeedsamplerate')) {
-            $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate'
+            $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate').']';
         }
 
         if(Mage::getStoreConfigFlag('google/analyticsplus/firstouch')) {
@@ -324,7 +324,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
 
             //_setSiteSpeedSampleRate
             if (Mage::getStoreConfigFlag('google/analyticsplus/sitespeedsamplerate')) {
-                $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsampler
+                $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate').']);
                 _gaq.push(';
             }
 
