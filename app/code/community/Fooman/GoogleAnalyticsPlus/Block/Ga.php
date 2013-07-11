@@ -148,7 +148,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
         $html .= "//<![CDATA[\n";
         $html .= '_gaq.push(["_addTrans",';
         $html .= '"' . $order->getIncrementId() . '",';
-        $html .= '"' . $order->getAffiliation() . '",';
+        $html .= '"' . $this->jsQuoteEscape($order->getAffiliation()) . '",';
         $html .= '"' . Mage::helper('googleanalyticsplus')->convert($order,'getBaseGrandTotal') . '",';
         $html .= '"' . Mage::helper('googleanalyticsplus')->convert($order,'getBaseTaxAmount') . '",';
         $html .= '"' . Mage::helper('googleanalyticsplus')->convert($order,'getBaseShippingAmount') . '",';
@@ -223,7 +223,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
 
                 $result[] = sprintf("_gaq.push(['_addTrans', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s']);",
                     $order->getIncrementId(),
-                    Mage::app()->getStore()->getFrontendName(),
+                    $this->jsQuoteEscape(Mage::app()->getStore()->getFrontendName()),
                     Mage::helper('googleanalyticsplus')->convert($order, 'getBaseGrandTotal'),
                     Mage::helper('googleanalyticsplus')->convert($order, 'getBaseTaxAmount'),
                     Mage::helper('googleanalyticsplus')->convert($order, 'getBaseShippingAmount'),
