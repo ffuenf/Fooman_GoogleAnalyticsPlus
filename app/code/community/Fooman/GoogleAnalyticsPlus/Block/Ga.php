@@ -79,7 +79,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
             $accountId = $this->getAccount();
         }
         $accountId2 = Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('accountnumber2');
-        
+
         $html = '
 <!-- BEGIN GOOGLE ANALYTICS CODE -->
 <script type="text/javascript">
@@ -87,9 +87,17 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
             (function() {
                 var ga = document.createElement(\'script\'); ga.type = \'text/javascript\'; ga.async = true;';
                 if ($secure == 'true') {
-                    $html .= 'ga.src = \'https://ssl.google-analytics.com/ga.js\';';
+                    if(Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('remarketing')){
+                        $html .= 'ga.src = \'https://stats.g.doubleclick.net/dc.js\';';
+                    } else {
+                        $html .= 'ga.src = \'https://ssl.google-analytics.com/ga.js\';';
+                    }
                 } else {
-                    $html .= 'ga.src = \'http://google-analytics.com/ga.js\';';
+                    if(Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('remarketing')){
+                        $html .= 'ga.src = \'https://stats.g.doubleclick.net/dc.js\';';
+                    } else {
+                        $html .= 'ga.src = \'http://google-analytics.com/ga.js\';';
+                    }
                 }
                 $html .= '
                 var s = document.getElementsByTagName(\'script\')[0]; s.parentNode.insertBefore(ga, s);
@@ -98,7 +106,6 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
 '
   . $this->_getPageTrackingCode($accountId,$accountId2)
   . ($new?$this->_getOrdersTrackingCode($accountId2):'')
-  . '
 //]]>
 </script>
 '
@@ -249,17 +256,13 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
 
     protected function _getCustomerVars ($accountId2 = false)
     {
-        //TODO: check if we hit the 5 custom var maximum when using with first touch tracking
-        //set customer variable for the current session c=1
-        //set returning customer variable onwards for this visitor rc=1
+        //set customer variable for the current visitor c=1
         return '
 <script type="text/javascript">
 //<![CDATA[
-    _gaq.push(["_setCustomVar", 5, "c", "1", 2]);
-    _gaq.push(["_setCustomVar", 5, "rc", "1", 1]);
+    _gaq.push(["_setCustomVar", 5, "c", "1", 1]);
     '.($accountId2?'
-    _gaq.push(["t2._setCustomVar", 5, "c", "1", 2]);
-    _gaq.push(["t2._setCustomVar", 5, "rc", "1", 1]);
+    _gaq.push(["t2._setCustomVar", 5, "c", "1", 1]);
 ':'').'
 //]]>
 </script>
