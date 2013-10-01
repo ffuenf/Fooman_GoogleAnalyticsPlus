@@ -106,6 +106,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
 '
   . $this->_getPageTrackingCode($accountId,$accountId2)
   . ($new?$this->_getOrdersTrackingCode($accountId2):'')
+  .'
 //]]>
 </script>
 '
