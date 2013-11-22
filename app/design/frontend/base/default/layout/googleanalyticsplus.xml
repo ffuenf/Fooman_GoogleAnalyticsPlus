@@ -15,14 +15,19 @@
             <action method="unsetChild"><name>google_analytics</name></action>
         </reference>
     </default>
+    <checkout_onepage_index>
+        <reference name="before_body_end">
+            <block type="googleanalyticsplus/checkout" name="googleanalyticsplus_checkout" template="googleanalyticsplus/checkout.phtml" />
+        </reference>
+    </checkout_onepage_index>
     <checkout_onepage_success>
         <reference name="before_body_end">
-	    <block type="googleanalyticsplus/gaConversion" name="googleanalyticsplus_conversion" template="googleanalyticsplus/ga-conversion.phtml" />
+	        <block type="googleanalyticsplus/gaConversion" name="googleanalyticsplus_conversion" template="googleanalyticsplus/ga-conversion.phtml" />
         </reference>
     </checkout_onepage_success>
     <checkout_multishipping_success>
         <reference name="before_body_end">
-	    <block type="googleanalyticsplus/gaConversion" name="googleanalyticsplus_conversion" template="googleanalyticsplus/ga-conversion.phtml" />
+	        <block type="googleanalyticsplus/gaConversion" name="googleanalyticsplus_conversion" template="googleanalyticsplus/ga-conversion.phtml" />
         </reference>
     </checkout_multishipping_success>
 </layout>
