@@ -39,7 +39,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_GaConversion extends Mage_Core_Block_Tem
     }
 
     public function getColor(){
-        return '#FFFFFF';
+        return 'ffffff';
     }
 
     public function getLanguage(){

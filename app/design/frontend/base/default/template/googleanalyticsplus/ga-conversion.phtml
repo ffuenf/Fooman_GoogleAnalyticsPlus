@@ -12,8 +12,8 @@ var google_conversion_format = "<?php echo $this->getFormat() ?>";
 var google_conversion_color = "<?php echo $this->getColor() ?>";
 var google_conversion_label = "<?php echo $this->getLabel() ?>";
 <?php if ($this->getValue()): ?>
-    var google_conversion_value = <?php echo $this->getValue() . ';';
-endif; ?>
+    var google_conversion_value = <?php echo $this->getValue(); ?>
+<?php endif; ?>
 var google_remarketing_only = false;
 //]]>
 </script>
@@ -23,4 +23,4 @@ var google_remarketing_only = false;
         <img height="1" width="1" border="0" alt="" src="//www.googleadservices.com/pagead/conversion/<?php echo $this->getConversionId() ?>/?value=<?php echo $this->getValue() ?>&label=<?php echo $this->getLabel() ?>&guid=ON&script=0">
     </div>
 </noscript>
-<?php endif; ?>
+<?php endif; ?>fea
