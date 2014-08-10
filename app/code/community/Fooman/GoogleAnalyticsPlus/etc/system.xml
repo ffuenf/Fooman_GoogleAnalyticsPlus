@@ -78,16 +78,15 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </remarketing>
-                        <trackpageloadtime translate="label">
-                            <label>Track Page Load Time</label>
-                            <comment>Site Speed Reports are only available in the new Google Analytics</comment>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        <sitespeedsamplerate translate="label">
+                            <label>Site Speed Sample Rate</label>
+                            <frontend_type>text</frontend_type>
                             <sort_order>300</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </trackpageloadtime>                        
+                            <comment><![CDATA[_setSiteSpeedSampleRate: Defines a new sample set size for Site Speed data collection.<br />Leave empty for default (1%). <a href="https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiBasicConfiguration#_gat.GA_Tracker_._setSiteSpeedSampleRate">Documentation</a><br />Replaces <a href="https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiBasicConfiguration#_gat.GA_Tracker_._trackPageLoadTime">_trackPageLoadTime</a>]]></comment>
+                        </sitespeedsamplerate>
                         <conversionenabled translate="label">
                             <label>Enable Adwords Conversion Tracking</label>
                             <frontend_type>select</frontend_type>
@@ -104,7 +103,6 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <depends><conversionenabled>1</conversionenabled></depends>
                         </conversionid>
                         <conversionlanguage translate="label">
                             <label>Conversion Language</label>
@@ -114,7 +112,6 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <depends><conversionenabled>1</conversionenabled></depends>
                         </conversionlanguage>
                         <conversionlabel translate="label">
                             <label>Conversion Label</label>
@@ -123,7 +120,6 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <depends><conversionenabled>1</conversionenabled></depends>
                         </conversionlabel>
                         <convertcurrencyenabled translate='label'>
                             <label>Convert Currency</label>
@@ -142,7 +138,6 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <depends><convertcurrencyenabled>1</convertcurrencyenabled></depends>
                         </convertcurrency>
                     </fields>
                 </analyticsplus>

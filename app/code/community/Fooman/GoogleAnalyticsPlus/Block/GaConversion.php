@@ -39,11 +39,18 @@ class  Fooman_GoogleAnalyticsPlus_Block_GaConversion extends Mage_Core_Block_Tem
     }
 
     public function getColor(){
-        return '#FFFFFF';
+        return 'ffffff';
     }
 
     public function getLanguage(){
         return Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('conversionlanguage');
+    }
+    public function getFormat(){
+        $format = Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('conversionformat');
+        if ($format){
+            return $format;
+        }
+        return 3;
     }
 
     public function getConversionId(){

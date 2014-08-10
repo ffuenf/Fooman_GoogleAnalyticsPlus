@@ -106,7 +106,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
 '
   . $this->_getPageTrackingCode($accountId,$accountId2)
   . ($new?$this->_getOrdersTrackingCode($accountId2):'')
-  .'
+  . $this->_getAjaxPageTracking($accountId2) . '
 //]]>
 </script>
 '
@@ -148,7 +148,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
         $html .= "//<![CDATA[\n";
         $html .= '_gaq.push(["_addTrans",';
         $html .= '"' . $order->getIncrementId() . '",';
-        $html .= '"' . $order->getAffiliation() . '",';
+        $html .= '"' . $this->jsQuoteEscape($order->getAffiliation()) . '",';
         $html .= '"' . Mage::helper('googleanalyticsplus')->convert($order,'getBaseGrandTotal') . '",';
         $html .= '"' . Mage::helper('googleanalyticsplus')->convert($order,'getBaseTaxAmount') . '",';
         $html .= '"' . Mage::helper('googleanalyticsplus')->convert($order,'getBaseShippingAmount') . '",';
@@ -223,7 +223,7 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
 
                 $result[] = sprintf("_gaq.push(['_addTrans', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s']);",
                     $order->getIncrementId(),
-                    Mage::app()->getStore()->getFrontendName(),
+                    $this->jsQuoteEscape(Mage::app()->getStore()->getFrontendName()),
                     Mage::helper('googleanalyticsplus')->convert($order, 'getBaseGrandTotal'),
                     Mage::helper('googleanalyticsplus')->convert($order, 'getBaseTaxAmount'),
                     Mage::helper('googleanalyticsplus')->convert($order, 'getBaseShippingAmount'),
@@ -289,9 +289,17 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
         if ($domainName = Mage::helper('googleanalyticsplus')->getGoogleanalyticsplusStoreConfig('domainname')) {
             $html .=' ,["_setDomainName","' . $domainName . '"]';
         }
+
+        // anonymizeIp
         if($anonymise = Mage::getStoreConfigFlag('google/analyticsplus/anonymise')) {
             $html .=', ["_gat._anonymizeIp"]';
         }
+
+        //_setSiteSpeedSampleRate
+        if (Mage::getStoreConfigFlag('google/analyticsplus/sitespeedsamplerate')) {
+            $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate').']';
+        }
+
         if(Mage::getStoreConfigFlag('google/analyticsplus/firstouch')) {
             $html .=');
             asyncDistilledFirstTouch(_gaq);
@@ -300,9 +308,6 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
             $html .=', ["_trackPageview","' . $optPageURL . '"]';
         }
 
-        if(Mage::getStoreConfigFlag('google/analyticsplus/trackpageloadtime')) {
-            $html .=', ["_trackPageLoadTime"]';
-        }        
         $html .=');';
         
         //track to alternative profile (optional)
@@ -316,15 +321,52 @@ class  Fooman_GoogleAnalyticsPlus_Block_Ga extends Mage_GoogleAnalytics_Block_Ga
                 //anonymise requires the synchronous tracker object so likely not needed on this one
                 //$html .=', ["t2._anonymizeIp"]';
             }
+
+            //_setSiteSpeedSampleRate
+            if (Mage::getStoreConfigFlag('google/analyticsplus/sitespeedsamplerate')) {
+                $html .=', ["_setSiteSpeedSampleRate", '.Mage::getStoreConfig('google/analyticsplus/sitespeedsamplerate').']);
+                _gaq.push(';
+            }
+
             $html .=', ["t2._trackPageview","' . $optPageURL . '"]';
             
-            if(Mage::getStoreConfigFlag('google/analyticsplus/trackpageloadtime')) {
-                $html .=', ["_trackPageLoadTime"]';
-            }        
-            $html .=');';            
+            $html .=');';
         }
 
         return $html;
+    }
+
+    /**
+     * return code to track AJAX requests
+     *
+     * @param bool|int $accountId2
+     *
+     * @return string
+     */
+    private function _getAjaxPageTracking($accountId2 = false)
+    {
+        $baseUrl = preg_replace('/\/\?.*/', '', $this->getPageName());
+        //$query = preg_replace('/.*\?/', '', $this->getPageName());
+        return '
+
+            if(Ajax.Responders){
+                Ajax.Responders.register({
+                  onComplete: function(response){
+                    if(!response.url.include("progress") && !response.url.include("getAdditional")){
+                        if(response.url.include("saveOrder")){
+                            _gaq.push(["_trackPageview", "'.$baseUrl.'"+ "/opc-review-placeOrderClicked"]);'
+                            .($accountId2?'
+                            _gaq.push(["t2._trackPageview", "'.$baseUrl.'"+ "/opc-review-placeOrderClicked"]);':'').'
+                        }else if(accordion.currentSection){
+                            _gaq.push(["_trackPageview", "'.$baseUrl.'/"+ accordion.currentSection]);'
+                            .($accountId2?'
+                            _gaq.push(["t2._trackPageview", "'.$baseUrl.'/"+ accordion.currentSection]);':'').'
+                        }
+                    }
+                  }
+                });
+            }
+';
     }
 
 }
